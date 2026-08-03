@@ -1,0 +1,6 @@
+[Added Associations]
+text/plain=nvim.desktop;org.xfce.mousepad.desktop;
+application/x-trash=org.xfce.mousepad.desktop;org.xfce.mousepad-settings.desktop;
+
+[Default Applications]
+application/x-trash=org.xfce.mousepad-settings.desktop

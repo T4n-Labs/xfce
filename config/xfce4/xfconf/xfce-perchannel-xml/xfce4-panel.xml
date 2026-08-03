@@ -1,0 +1,135 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<channel name="xfce4-panel" version="1.0">
+  <property name="configver" type="int" value="2"/>
+  <property name="panels" type="array">
+    <value type="int" value="1"/>
+    <value type="int" value="2"/>
+    <property name="dark-mode" type="bool" value="true"/>
+    <property name="panel-1" type="empty">
+      <property name="position" type="string" value="p=8;x=960;y=1066"/>
+      <property name="length" type="uint" value="100"/>
+      <property name="position-locked" type="bool" value="true"/>
+      <property name="icon-size" type="uint" value="35"/>
+      <property name="size" type="uint" value="38"/>
+      <property name="plugin-ids" type="array">
+        <value type="int" value="13"/>
+        <value type="int" value="34"/>
+        <value type="int" value="27"/>
+        <value type="int" value="35"/>
+        <value type="int" value="28"/>
+        <value type="int" value="22"/>
+        <value type="int" value="23"/>
+        <value type="int" value="24"/>
+        <value type="int" value="25"/>
+        <value type="int" value="26"/>
+      </property>
+      <property name="background-style" type="uint" value="1"/>
+      <property name="background-rgba" type="array">
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0.29999999999999999"/>
+      </property>
+      <property name="enable-struts" type="bool" value="true"/>
+    </property>
+    <property name="panel-2" type="empty">
+      <property name="position" type="string" value="p=7;x=25;y=543"/>
+      <property name="size" type="uint" value="60"/>
+      <property name="mode" type="uint" value="1"/>
+      <property name="length" type="double" value="1"/>
+      <property name="position-locked" type="bool" value="true"/>
+      <property name="plugin-ids" type="array">
+        <value type="int" value="29"/>
+        <value type="int" value="30"/>
+        <value type="int" value="31"/>
+        <value type="int" value="32"/>
+        <value type="int" value="33"/>
+      </property>
+      <property name="autohide-behavior" type="uint" value="1"/>
+      <property name="nrows" type="uint" value="1"/>
+      <property name="border-width" type="uint" value="0"/>
+      <property name="length-adjust" type="bool" value="true"/>
+      <property name="background-style" type="uint" value="1"/>
+      <property name="background-rgba" type="array">
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0.29999999999999999"/>
+      </property>
+    </property>
+  </property>
+  <property name="plugins" type="empty">
+    <property name="plugin-13" type="string" value="whiskermenu">
+      <property name="recent" type="array">
+        <value type="string" value="com.github.FontManager.FontManager.desktop"/>
+        <value type="string" value="xfce-settings-manager.desktop"/>
+      </property>
+      <property name="favorites" type="array">
+        <value type="string" value="xfce4-appfinder.desktop"/>
+        <value type="string" value="firefox.desktop"/>
+        <value type="string" value="xfce4-terminal-emulator.desktop"/>
+        <value type="string" value="xfce4-file-manager.desktop"/>
+        <value type="string" value="xfce-settings-manager.desktop"/>
+      </property>
+      <property name="position-categories-alternate" type="bool" value="true"/>
+      <property name="button-title" type="string" value=""/>
+      <property name="button-icon" type="string" value="void-logo-notext"/>
+      <property name="profile-shape" type="int" value="0"/>
+      <property name="position-profile-alternate" type="bool" value="true"/>
+      <property name="position-categories-horizontal" type="bool" value="false"/>
+    </property>
+    <property name="plugin-22" type="string" value="separator">
+      <property name="expand" type="bool" value="true"/>
+      <property name="style" type="uint" value="0"/>
+    </property>
+    <property name="plugin-23" type="string" value="power-manager-plugin"/>
+    <property name="plugin-24" type="string" value="notification-plugin"/>
+    <property name="plugin-25" type="string" value="pulseaudio">
+      <property name="enable-keyboard-shortcuts" type="bool" value="true"/>
+    </property>
+    <property name="plugin-26" type="string" value="clock">
+      <property name="digital-date-font" type="string" value="RobotoMono Nerd Font Medium 8"/>
+      <property name="digital-time-font" type="string" value="RobotoMono Nerd Font 9"/>
+    </property>
+    <property name="plugin-27" type="string" value="pager">
+      <property name="rows" type="uint" value="1"/>
+      <property name="miniature-view" type="bool" value="false"/>
+      <property name="workspace-scrolling" type="bool" value="true"/>
+      <property name="numbering" type="bool" value="false"/>
+    </property>
+    <property name="plugin-28" type="string" value="tasklist"/>
+    <property name="plugin-29" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="178560864410.desktop"/>
+      </property>
+    </property>
+    <property name="plugin-30" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="178560865111.desktop"/>
+      </property>
+    </property>
+    <property name="plugin-31" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="178560870712.desktop"/>
+      </property>
+    </property>
+    <property name="plugin-32" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="178560871613.desktop"/>
+      </property>
+    </property>
+    <property name="plugin-33" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="178560872414.desktop"/>
+      </property>
+    </property>
+    <property name="plugin-34" type="string" value="separator">
+      <property name="expand" type="bool" value="false"/>
+      <property name="style" type="uint" value="0"/>
+    </property>
+    <property name="plugin-35" type="string" value="separator">
+      <property name="style" type="uint" value="0"/>
+    </property>
+  </property>
+</channel>

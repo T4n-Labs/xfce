@@ -1,0 +1,127 @@
+#!/bin/sh
+set -e
+
+DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
+CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+echo "==> Backup config lama..."
+BACKUP_DIR="$HOME/.config-backup-$(date +%Y%m%d%H%M%S)"
+mkdir -p "$BACKUP_DIR"
+for d in xfce4 gtk-3.0 cava conky tilda Thunar autostart; do
+    [ -d "$CONFIG_HOME/$d" ] && cp -r "$CONFIG_HOME/$d" "$BACKUP_DIR/"
+done
+[ -f "$CONFIG_HOME/mimeapps.list" ] && cp "$CONFIG_HOME/mimeapps.list" "$BACKUP_DIR/"
+echo "Backup disimpan di $BACKUP_DIR"
+
+echo "==> Update repodata..."
+sudo xbps-install -S
+ 
+PACKAGES="conky tilda cava xfce4-whiskermenu-plugin unzip"
+ 
+echo "==> Install package: $PACKAGES"
+sudo xbps-install -y $PACKAGES
+ 
+echo "==> Selesai. Package terinstall:"
+for pkg in $PACKAGES; do
+    xbps-query -l | grep -i "^ii $pkg" >/dev/null 2>&1 \
+        && echo "  [OK] $pkg" \
+        || echo "  [GAGAL/TIDAK DITEMUKAN] $pkg"
+done
+
+echo "==> Deploy assets (fonts, themes, icons)..."
+if [ -d "$DOTFILES_DIR/assets" ]; then
+    sudo mkdir -p /usr/share/fonts /usr/share/themes /usr/share/icons
+
+    echo "  -> Fonts..."
+    for f in "$DOTFILES_DIR"/assets/fonts/*.zip; do
+        [ -f "$f" ] || continue
+        name="$(basename "$f" .zip)"
+        sudo mkdir -p "/usr/share/fonts/$name"
+        sudo unzip -o -q "$f" -d "/usr/share/fonts/$name"
+    done
+
+    echo "  -> Themes..."
+    for f in "$DOTFILES_DIR"/assets/themes/*.tar.xz; do
+        [ -f "$f" ] || continue
+        sudo tar -xJf "$f" -C /usr/share/themes/
+    done
+
+    echo "  -> Icons..."
+    for f in "$DOTFILES_DIR"/assets/icons/*.tar.xz; do
+        [ -f "$f" ] || continue
+        sudo tar -xJf "$f" -C /usr/share/icons/
+    done
+
+    echo "  -> Wallpapers..."
+    if [ -d "$DOTFILES_DIR/assets/wallpapers" ]; then
+        sudo mkdir -p /usr/share/backgrounds/t4n-os
+        sudo cp "$DOTFILES_DIR"/assets/wallpapers/* /usr/share/backgrounds/t4n-os/
+    fi
+
+    echo "==> Update font cache..."
+    sudo fc-cache -f >/dev/null 2>&1 || true
+else
+    echo "Folder assets/ tidak ditemukan, lewati."
+fi
+
+echo "==> Deploy dotfiles..."
+mkdir -p "$CONFIG_HOME"
+cp -r "$DOTFILES_DIR/config/"* "$CONFIG_HOME/"
+
+echo "==> Generate Thunar sidebar bookmarks..."
+mkdir -p "$CONFIG_HOME/gtk-3.0"
+BOOKMARKS_FILE="$CONFIG_HOME/gtk-3.0/bookmarks"
+: > "$BOOKMARKS_FILE"
+for d in Desktop Documents Downloads Music Pictures Public Templates Videos; do
+    [ -d "$HOME/$d" ] && echo "file://$HOME/$d" >> "$BOOKMARKS_FILE"
+done
+echo "Bookmarks dibuat di $BOOKMARKS_FILE"
+
+echo "==> Restart komponen XFCE biar config ke-load..."
+killall xfconfd 2>/dev/null || true
+sleep 1
+if pgrep -x xfce4-panel >/dev/null 2>&1; then
+    xfce4-panel -r 2>/dev/null || { pkill xfce4-panel 2>/dev/null; sleep 1; nohup xfce4-panel >/dev/null 2>&1 & disown; }
+else
+    nohup xfce4-panel >/dev/null 2>&1 &
+    disown
+fi
+
+echo "==> Deteksi monitor & set wallpaper otomatis..."
+WALLPAPER="/usr/share/backgrounds/t4n-os/desert.jpg"
+if [ -f "$WALLPAPER" ] && command -v xrandr >/dev/null 2>&1; then
+    for mon in $(xrandr --query | awk '/ connected/{print $1}'); do
+        for ws in 0 1 2 3 4; do
+            xfconf-query -c xfce4-desktop -p "/backdrop/screen0/monitor$mon/workspace$ws/last-image" \
+                -n -t string -s "$WALLPAPER" 2>/dev/null || true
+        done
+    done
+    echo "Wallpaper diterapkan ke monitor: $(xrandr --query | awk '/ connected/{print $1}' | tr '\n' ' ')"
+else
+    echo "xrandr tidak tersedia atau wallpaper tidak ditemukan, lewati (set manual lewat Desktop Settings)."
+fi
+
+echo "==> Deteksi resolusi & sesuaikan scaling (HiDPI)..."
+if command -v xrandr >/dev/null 2>&1; then
+    WIDTH="$(xrandr --query | awk '/ connected primary/{print $4}' | cut -d'x' -f1 | cut -d'+' -f1)"
+    [ -z "$WIDTH" ] && WIDTH="$(xrandr --query | awk '/ connected/{print $3}' | head -1 | cut -d'x' -f1 | cut -d'+' -f1)"
+
+    if [ -n "$WIDTH" ]; then
+        if [ "$WIDTH" -ge 3840 ]; then
+            SCALE=2; DPI=192
+        elif [ "$WIDTH" -ge 2560 ]; then
+            SCALE=1; DPI=120
+        else
+            SCALE=1; DPI=96
+        fi
+        echo "Resolusi terdeteksi: ${WIDTH}px lebar -> scaling factor $SCALE, DPI $DPI"
+        xfconf-query -c xsettings -p /Xft/DPI -n -t int -s "$DPI" 2>/dev/null || true
+        xfconf-query -c xsettings -p /Gdk/WindowScalingFactor -n -t int -s "$SCALE" 2>/dev/null || true
+    else
+        echo "Resolusi tidak terdeteksi, lewati auto-scaling."
+    fi
+else
+    echo "xrandr tidak tersedia, lewati auto-scaling."
+fi
+
+echo "Selesai. Logout/login kalau ada yang belum keliatan berubah."
