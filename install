@@ -28,6 +28,21 @@ for pkg in $PACKAGES; do
         || echo "  [GAGAL/TIDAK DITEMUKAN] $pkg"
 done
 
+echo "==> Install package: git-lfs"
+sudo xbps-install -y git-lfs
+
+echo "==> Konfigurasi git-lfs"
+if command -v git-lfs >/dev/null 2>&1; then
+    if [ -d "$DOTFILES_DIR/.git" ]; then
+        (cd "$DOTFILES_DIR" && git lfs install --local && git lfs pull) \
+            || echo "  [WARNING] git lfs pull gagal, aset besar mungkin masih berupa pointer file."
+    else
+        echo "  [SKIP] $DOTFILES_DIR bukan git repo (mungkin hasil tarball), lewati git lfs pull."
+    fi
+else
+    echo "  [GAGAL] git-lfs tidak ditemukan setelah instalasi."
+fi
+
 echo "==> Deploy assets (fonts, themes, icons)..."
 if [ -d "$DOTFILES_DIR/assets" ]; then
     sudo mkdir -p /usr/share/fonts /usr/share/themes /usr/share/icons
