@@ -61,10 +61,6 @@
   </property>
   <property name="plugins" type="empty">
     <property name="plugin-13" type="string" value="whiskermenu">
-      <property name="recent" type="array">
-        <value type="string" value="com.github.FontManager.FontManager.desktop"/>
-        <value type="string" value="xfce-settings-manager.desktop"/>
-      </property>
       <property name="favorites" type="array">
         <value type="string" value="xfce4-appfinder.desktop"/>
         <value type="string" value="firefox.desktop"/>

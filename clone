@@ -1,0 +1,129 @@
+#!/bin/sh
+# save-config — salin konfigurasi XFCE dari ~/.config ke folder config/ di repo.
+#
+# Kebalikan dari ./install:
+#   install     : repo (config/)  ->  sistem (~/.config)
+#   save-config : sistem (~/.config) ->  repo (config/)
+#
+# Pemakaian:
+#   ./save-config              salin semua item di ITEMS
+#   ./save-config -n           dry-run, cuma tampilkan apa yang akan dilakukan
+#   ./save-config foo bar.conf tambah item lain (path relatif terhadap ~/.config)
+set -eu
+
+DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
+SRC_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+DEST="$DOTFILES_DIR/config"
+
+# Folder/file di ~/.config yang disimpan ke repo.
+ITEMS="autostart cava conky gtk-3.0 Thunar tilda xfce4 mimeapps.list"
+
+# Path (relatif terhadap config/) yang TIDAK ikut disimpan, dipisah spasi/baris:
+#   gtk-3.0/bookmarks            -> berisi path home, dibuat ulang oleh ./install
+#   xfce4/session, xfce4/desktop -> state sesi & posisi ikon, spesifik mesin
+#   xfce4-desktop.xml            -> wallpaper per nama monitor, diatur oleh ./install
+#   displays.xml                 -> layout monitor, spesifik hardware
+EXCLUDES="
+gtk-3.0/bookmarks
+xfce4/session
+xfce4/desktop
+xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
+xfce4/xfconf/xfce-perchannel-xml/displays.xml
+"
+
+usage() {
+    cat <<EOF
+Pemakaian: $0 [-n|--dry-run] [-h|--help] [item...]
+
+  -n, --dry-run   tampilkan perintah tanpa mengubah apa pun
+  -h, --help      tampilkan bantuan ini
+  item            path tambahan relatif terhadap $SRC_HOME
+EOF
+}
+
+DRY_RUN=0
+EXTRA=""
+for arg in "$@"; do
+    case "$arg" in
+        -n|--dry-run) DRY_RUN=1 ;;
+        -h|--help)    usage; exit 0 ;;
+        -*)           echo "Opsi tidak dikenal: $arg" >&2; usage >&2; exit 1 ;;
+        *)            EXTRA="$EXTRA $arg" ;;
+    esac
+done
+
+# Jalankan perintah, atau cuma cetak kalau dry-run.
+run() {
+    if [ "$DRY_RUN" -eq 1 ]; then
+        echo "     [dry-run] $*"
+    else
+        "$@"
+    fi
+}
+
+if [ ! -d "$SRC_HOME" ]; then
+    echo "Folder $SRC_HOME tidak ditemukan." >&2
+    exit 1
+fi
+
+echo "==> Sumber : $SRC_HOME"
+echo "==> Tujuan : $DEST"
+if [ "$DRY_RUN" -eq 1 ]; then
+    echo "==> Mode dry-run: tidak ada yang diubah"
+fi
+
+run mkdir -p "$DEST"
+
+echo "==> Menyalin konfigurasi..."
+COPIED=0
+SKIPPED=0
+for item in $ITEMS $EXTRA; do
+    case "$item" in
+        /*|*..*)
+            echo "  [SKIP] $item (path tidak valid)"
+            SKIPPED=$((SKIPPED + 1))
+            continue
+            ;;
+    esac
+
+    if [ ! -e "$SRC_HOME/$item" ]; then
+        echo "  [SKIP] $item (tidak ada di $SRC_HOME)"
+        SKIPPED=$((SKIPPED + 1))
+        continue
+    fi
+
+    echo "  -> $item"
+    # Hapus dulu versi lama di repo supaya file yang sudah dihapus di sistem
+    # tidak tertinggal, lalu salin ulang (termasuk file tersembunyi).
+    run rm -rf "${DEST:?}/$item"
+    run mkdir -p "$(dirname "$DEST/$item")"
+    run cp -RH "$SRC_HOME/$item" "$DEST/$item"
+    COPIED=$((COPIED + 1))
+done
+
+echo "==> Membuang file yang tidak boleh ikut..."
+for ex in $EXCLUDES; do
+    if [ -e "$SRC_HOME/$ex" ] || [ -e "$DEST/$ex" ]; then
+        echo "  -x $ex"
+        run rm -rf "${DEST:?}/$ex"
+    fi
+done
+
+if [ "$DRY_RUN" -eq 0 ]; then
+    echo "==> Cek kata yang mungkin sensitif..."
+    HITS="$(grep -rIliE 'password|passwd|token|secret|api[_-]?key' "$DEST" 2>/dev/null || true)"
+    if [ -n "$HITS" ]; then
+        echo "  [PERIKSA] File berikut mengandung kata yang mungkin sensitif:"
+        echo "$HITS" | sed "s|^$DEST/|      |"
+    else
+        echo "  [OK] tidak ada yang mencurigakan."
+    fi
+fi
+
+echo "==> Selesai: $COPIED item disalin, $SKIPPED dilewati."
+
+if [ "$DRY_RUN" -eq 0 ] && [ -d "$DOTFILES_DIR/.git" ] && command -v git >/dev/null 2>&1; then
+    echo "==> Perubahan di repo:"
+    git -C "$DOTFILES_DIR" status --short -- config
+    echo "Selanjutnya: git add config && git commit -m \"Update config\" && git push"
+fi

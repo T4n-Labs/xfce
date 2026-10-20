@@ -16,13 +16,23 @@ echo "Backup disimpan di $BACKUP_DIR"
 echo "==> Update repodata..."
 sudo xbps-install -S
  
-PACKAGES="conky tilda cava xfce4-whiskermenu-plugin unzip"
+PACKAGES="conky tilda cava xfce4-whiskermenu-plugin unzip thunar-archive-plugin xarchiver"
  
 echo "==> Install package: $PACKAGES"
 sudo xbps-install -y $PACKAGES
+
+# Paket yang dipakai config (panel, shortcut, touchpad, audio). Dipasang satu-satu
+# supaya satu nama paket yang salah tidak menggagalkan seluruh instalasi.
+EXTRA_PACKAGES="xf86-input-libinput xfce4-pulseaudio-plugin alsa-utils pavucontrol xfce4-screenshooter xfce4-taskmanager"
+
+echo "==> Install package tambahan: $EXTRA_PACKAGES"
+for pkg in $EXTRA_PACKAGES; do
+    sudo xbps-install -y "$pkg" >/dev/null 2>&1 \
+        || echo "  [WARNING] gagal memasang $pkg (cek nama paket / koneksi)"
+done
  
 echo "==> Selesai. Package terinstall:"
-for pkg in $PACKAGES; do
+for pkg in $PACKAGES $EXTRA_PACKAGES; do
     xbps-query -l | grep -i "^ii $pkg" >/dev/null 2>&1 \
         && echo "  [OK] $pkg" \
         || echo "  [GAGAL/TIDAK DITEMUKAN] $pkg"
@@ -79,9 +89,62 @@ else
     echo "Folder assets/ tidak ditemukan, lewati."
 fi
 
+echo "==> Konfigurasi sistem (system/*.conf -> /etc/X11/xorg.conf.d)..."
+SYS_COUNT=0
+for f in "$DOTFILES_DIR"/system/*.conf; do
+    [ -f "$f" ] || continue
+    sudo mkdir -p /etc/X11/xorg.conf.d
+    sudo install -m 644 "$f" "/etc/X11/xorg.conf.d/$(basename "$f")"
+    echo "  [OK] $(basename "$f")"
+    SYS_COUNT=$((SYS_COUNT + 1))
+done
+if [ "$SYS_COUNT" -eq 0 ]; then
+    echo "  [SKIP] tidak ada file di system/."
+else
+    echo "  (touchpad & input aktif setelah logout/login atau reboot)"
+fi
+
+echo "==> Audio & mikrofon..."
+# Grup audio: dibutuhkan kalau aplikasi mengakses ALSA langsung
+if ! id -nG | tr ' ' '\n' | grep -qx audio; then
+    if sudo usermod -aG audio "$(id -un)"; then
+        echo "  [INFO] $(id -un) ditambahkan ke grup audio (berlaku setelah logout/login)."
+    else
+        echo "  [WARNING] gagal menambahkan $(id -un) ke grup audio."
+    fi
+fi
+# Capture ALSA bisa off secara default
+if command -v amixer >/dev/null 2>&1; then
+    amixer -q sset Capture cap 2>/dev/null || true
+    amixer -q sset Mic cap 2>/dev/null || true
+fi
+# Unmute mic default lewat PulseAudio/PipeWire (kalau sound server sedang jalan)
+if command -v pactl >/dev/null 2>&1 && pactl info >/dev/null 2>&1; then
+    pactl set-source-mute @DEFAULT_SOURCE@ 0 2>/dev/null || true
+    pactl set-source-volume @DEFAULT_SOURCE@ 80% 2>/dev/null || true
+    echo "  [OK] Mikrofon default di-unmute (80%)."
+else
+    echo "  [SKIP] Sound server belum berjalan; atur mic lewat pavucontrol > Input Devices."
+fi
+
 echo "==> Deploy dotfiles..."
+# Matikan xfconfd dulu supaya tidak menimpa XML baru dengan cache lamanya,
+# lalu matikan lagi setelah copy supaya xfconfd yang baru membaca XML hasil deploy.
+pkill -x xfconfd 2>/dev/null || true
+sleep 1
 mkdir -p "$CONFIG_HOME"
 cp -r "$DOTFILES_DIR/config/"* "$CONFIG_HOME/"
+pkill -x xfconfd 2>/dev/null || true
+sleep 1
+
+echo "==> Cek launcher panel..."
+for f in "$CONFIG_HOME"/xfce4/panel/launcher-*/*.desktop; do
+    [ -f "$f" ] || continue
+    cmd="$(sed -n 's/^Exec=//p' "$f" | head -n 1 | awk '{print $1}')"
+    [ -n "$cmd" ] || continue
+    command -v "$cmd" >/dev/null 2>&1 \
+        || echo "  [WARNING] $(basename "$f"): perintah '$cmd' tidak ditemukan"
+done
 
 echo "==> Generate Thunar sidebar bookmarks..."
 mkdir -p "$CONFIG_HOME/gtk-3.0"
@@ -91,16 +154,6 @@ for d in Desktop Documents Downloads Music Pictures Public Templates Videos; do
     [ -d "$HOME/$d" ] && echo "file://$HOME/$d" >> "$BOOKMARKS_FILE"
 done
 echo "Bookmarks dibuat di $BOOKMARKS_FILE"
-
-echo "==> Restart komponen XFCE biar config ke-load..."
-killall xfconfd 2>/dev/null || true
-sleep 1
-if pgrep -x xfce4-panel >/dev/null 2>&1; then
-    xfce4-panel -r 2>/dev/null || { pkill xfce4-panel 2>/dev/null; sleep 1; nohup xfce4-panel >/dev/null 2>&1 & disown; }
-else
-    nohup xfce4-panel >/dev/null 2>&1 &
-    disown
-fi
 
 echo "==> Deteksi monitor & set wallpaper otomatis..."
 WALLPAPER="/usr/share/backgrounds/t4n-os/desert.jpg"
@@ -120,6 +173,7 @@ echo "==> Deteksi resolusi & sesuaikan scaling (HiDPI)..."
 if command -v xrandr >/dev/null 2>&1; then
     WIDTH="$(xrandr --query | awk '/ connected primary/{print $4}' | cut -d'x' -f1 | cut -d'+' -f1)"
     [ -z "$WIDTH" ] && WIDTH="$(xrandr --query | awk '/ connected/{print $3}' | head -1 | cut -d'x' -f1 | cut -d'+' -f1)"
+    case "$WIDTH" in *[!0-9]*) WIDTH="" ;; esac
 
     if [ -n "$WIDTH" ]; then
         if [ "$WIDTH" -ge 3840 ]; then
@@ -139,4 +193,17 @@ else
     echo "xrandr tidak tersedia, lewati auto-scaling."
 fi
 
-echo "Selesai. Logout/login kalau ada yang belum keliatan berubah."
+# Restart di urutan terakhir supaya panel ikut membaca scaling/DPI yang baru
+# diset di atas. (Tanpa 'disown': tidak ada di dash, dan set -e akan menghentikan script.)
+echo "==> Restart komponen XFCE biar config ke-load..."
+if command -v xfsettingsd >/dev/null 2>&1; then
+    nohup xfsettingsd --replace >/dev/null 2>&1 &
+    sleep 1
+fi
+if pgrep -x xfce4-panel >/dev/null 2>&1; then
+    xfce4-panel -r >/dev/null 2>&1 || { pkill -x xfce4-panel 2>/dev/null || true; sleep 1; nohup xfce4-panel >/dev/null 2>&1 & }
+else
+    nohup xfce4-panel >/dev/null 2>&1 &
+fi
+
+echo "Selesai. Logout/login kalau ada yang belum keliatan berubah (wajib untuk touchpad & grup audio)."
