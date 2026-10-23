@@ -104,6 +104,17 @@ else
     echo "  (touchpad & input aktif setelah logout/login atau reboot)"
 fi
 
+echo "==> Konfigurasi sistem (system/polkit-1,udev -> /etc/)..."
+if [ -d "$DOTFILES_DIR/system/etc/polkit-1" ]; then
+    sudo cp -r "$DOTFILES_DIR"/system/etc/polkit-1 /etc/
+fi
+
+if [ -d "$DOTFILES_DIR/system/etc/udev" ]; then
+    sudo cp -r "$DOTFILES_DIR"/system/etc/udev /etc/
+fi
+
+echo "==> SKIP Calamares(Manual)"
+
 echo "==> Audio & mikrofon..."
 # Grup audio: dibutuhkan kalau aplikasi mengakses ALSA langsung
 if ! id -nG | tr ' ' '\n' | grep -qx audio; then
