@@ -41,7 +41,6 @@
       <property name="Super_L" type="string" value="xfce4-popup-whiskermenu"/>
       <property name="&lt;Shift&gt;&lt;Super&gt;s" type="string" value="xfce4-screenshooter"/>
       <property name="&lt;Primary&gt;&lt;Alt&gt;t" type="string" value="xfce4-terminal"/>
-      <property name="XF86AudioMicMute" type="string" value="pactl set-source-mute @DEFAULT_SOURCE@ toggle"/>
     </property>
   </property>
   <property name="xfwm4" type="empty">

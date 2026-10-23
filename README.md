@@ -123,23 +123,6 @@ xfce/
 
 Shortcut window manager (pindah workspace dengan `Ctrl` + `F1`–`F12`, tiling dengan `Super` + numpad, dst.) mengikuti bawaan XFCE. Ada 5 workspace.
 
-## Touchpad
-
-`system/30-touchpad.conf` mengatur semua touchpad lewat libinput:
-
-```
-Section "InputClass"
-    Identifier "T4n touchpad"
-    MatchIsTouchpad "on"
-    MatchDriver "libinput"
-    Option "Tapping" "on"
-    Option "NaturalScrolling" "true"
-    Option "DisableWhileTyping" "on"
-EndSection
-```
-
-Berlaku setelah logout/login atau reboot. File `.conf` lain yang ditaruh di `system/` ikut disalin otomatis oleh `install`.
-
 ## Menyimpan perubahan (`clone`)
 
 Setelah mengubah tampilan lewat GUI, simpan ke repo dengan `clone`:

@@ -7,7 +7,7 @@
     <value type="int" value="2"/>
     <property name="dark-mode" type="bool" value="true"/>
     <property name="panel-1" type="empty">
-      <property name="position" type="string" value="p=8;x=960;y=1066"/>
+      <property name="position" type="string" value="p=6;x=960;y=23"/>
       <property name="length" type="uint" value="100"/>
       <property name="position-locked" type="bool" value="true"/>
       <property name="icon-size" type="uint" value="35"/>
@@ -21,6 +21,7 @@
         <value type="int" value="22"/>
         <value type="int" value="23"/>
         <value type="int" value="24"/>
+        <value type="int" value="1"/>
         <value type="int" value="25"/>
         <value type="int" value="26"/>
       </property>
@@ -34,9 +35,9 @@
       <property name="enable-struts" type="bool" value="true"/>
     </property>
     <property name="panel-2" type="empty">
-      <property name="position" type="string" value="p=7;x=25;y=543"/>
+      <property name="position" type="string" value="p=10;x=962;y=1049"/>
       <property name="size" type="uint" value="60"/>
-      <property name="mode" type="uint" value="1"/>
+      <property name="mode" type="uint" value="0"/>
       <property name="length" type="double" value="1"/>
       <property name="position-locked" type="bool" value="true"/>
       <property name="plugin-ids" type="array">
@@ -61,6 +62,9 @@
   </property>
   <property name="plugins" type="empty">
     <property name="plugin-13" type="string" value="whiskermenu">
+      <property name="recent" type="array">
+        <value type="string" value="xfce-settings-manager.desktop"/>
+      </property>
       <property name="favorites" type="array">
         <value type="string" value="xfce4-appfinder.desktop"/>
         <value type="string" value="firefox.desktop"/>
@@ -126,6 +130,11 @@
     </property>
     <property name="plugin-35" type="string" value="separator">
       <property name="style" type="uint" value="0"/>
+    </property>
+    <property name="plugin-1" type="string" value="systray">
+      <property name="known-legacy-items" type="array">
+        <value type="string" value="no network connection"/>
+      </property>
     </property>
   </property>
 </channel>

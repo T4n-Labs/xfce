@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<channel name="xfce4-synaptics" version="1.0">
+  <property name="synaptics" type="empty">
+    <property name="TouchpadOff" type="int" value="0"/>
+    <property name="LeftHanded" type="int" value="0"/>
+    <property name="TapButton1" type="int" value="1"/>
+    <property name="TapButton2" type="int" value="3"/>
+    <property name="TapButton3" type="int" value="2"/>
+    <property name="VertEdgeScroll" type="int" value="1"/>
+    <property name="HorizEdgeScroll" type="int" value="1"/>
+    <property name="VertTwoFingerScroll" type="int" value="1"/>
+    <property name="HorizTwoFingerScroll" type="int" value="1"/>
+    <property name="CircularScrolling" type="int" value="1"/>
+    <property name="CircScrollTrigger" type="int" value="2"/>
+    <property name="PalmDetect" type="int" value="1"/>
+    <property name="PalmMinWidth" type="int" value="10"/>
+    <property name="PalmMinZ" type="int" value="200"/>
+    <property name="CoastingSpeed" type="int" value="20"/>
+    <property name="CoastingFriction" type="int" value="50"/>
+    <property name="MinSpeed" type="double" value="1"/>
+    <property name="MaxSpeed" type="double" value="1.75"/>
+    <property name="AccelFactor" type="double" value="0.035"/>
+    <property name="TrackstickSpeed" type="double" value="40"/>
+    <property name="EdgeMotionMinZ" type="int" value="30"/>
+    <property name="EdgeMotionMaxZ" type="int" value="160"/>
+    <property name="EdgeMotionMinSpeed" type="int" value="1"/>
+    <property name="EdgeMotionMaxSpeed" type="int" value="400"/>
+    <property name="EdgeMotionUseAlways" type="int" value="0"/>
+    <property name="UpDownScrolling" type="int" value="1"/>
+    <property name="LeftRightScrolling" type="int" value="1"/>
+    <property name="UpDownScrollRepeat" type="int" value="1"/>
+    <property name="LeftRightScrollRepeat" type="int" value="1"/>
+    <property name="ScrollButtonRepeat" type="int" value="100"/>
+    <property name="TouchpadMove" type="int" value="1"/>
+    <property name="EmulateMidButtonTime" type="int" value="75"/>
+    <property name="EmulateTwoFingerMinZ" type="int" value="282"/>
+    <property name="EmulateTwoFingerMinW" type="int" value="7"/>
+    <property name="GuestMouseOff" type="int" value="0"/>
+    <property name="LockedDrags" type="int" value="0"/>
+    <property name="LockedDragTimeout" type="int" value="5000"/>
+    <property name="RTCornerButton" type="int" value="2"/>
+    <property name="RBCornerButton" type="int" value="3"/>
+    <property name="LTCornerButton" type="int" value="0"/>
+    <property name="LBCornerButton" type="int" value="0"/>
+    <property name="TapFastTap" type="int" value="1"/>
+    <property name="MaxTapTime" type="int" value="180"/>
+    <property name="MaxTapMove" type="int" value="220"/>
+    <property name="MaxDoubleTapTime" type="int" value="180"/>
+    <property name="SingleTapTimeout" type="int" value="180"/>
+    <property name="ClickTime" type="int" value="100"/>
+    <property name="FastTaps" type="int" value="0"/>
+    <property name="PressureMotionMinZ" type="int" value="30"/>
+    <property name="PressureMotionMaxZ" type="int" value="160"/>
+    <property name="PressureMotionMinFactor" type="double" value="1"/>
+    <property name="PressureMotionMaxFactor" type="double" value="1"/>
+    <property name="GrabEventDevice" type="int" value="1"/>
+    <property name="TapAndDragGesture" type="int" value="1"/>
+    <property name="AreaLeftEdge" type="int" value="0"/>
+    <property name="AreaRightEdge" type="int" value="0"/>
+    <property name="AreaTopEdge" type="int" value="0"/>
+    <property name="AreaBottomEdge" type="int" value="0"/>
+    <property name="HorizHysteresis" type="int" value="25"/>
+    <property name="VertHysteresis" type="int" value="25"/>
+    <property name="ClickPad" type="int" value="1"/>
+  </property>
+</channel>

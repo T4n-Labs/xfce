@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Install T4n OS
+GenericName=System Installer
+Keywords=calamares;system;installer;
+TryExec=calamares
+Exec=pkexec calamares
+Comment=Calamares - T4n OS Installer
+Icon=calamares
+Terminal=false
+StartupNotify=true
+Categories=Qt;System;
+X-AppStream-Ignore=true

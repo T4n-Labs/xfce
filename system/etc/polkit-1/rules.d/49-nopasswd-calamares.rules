@@ -1,0 +1,6 @@
+polkit.addRule(function(action, subject) {
+    if (action.id == "com.github.calamares.calamares.pkexec.run" &&
+        subject.user == "t4nos" && subject.local && subject.active) {
+        return polkit.Result.YES;
+    }
+});
